@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>{{ app_name }} | Read any repository</title>
+    <meta name="description" content="Explore a GitHub repository and ask questions about its files.">
+    <meta name="theme-color" content="#f5f6f2">
+    <base href="{{ base_href }}">
+    <link rel="icon" href="{{ icon_url }}" sizes="192x192">
+    <link rel="stylesheet" href="{{ shared_asset_base }}base.css">
+    <link rel="stylesheet" href="{{ asset_base }}styles.css">
+  </head>
+  <body class="shell-body text-shell-body">
+    <div class="app-frame public-frame text-frame">
+      <main class="repo-reader" aria-label="Repository reader">
+        <header class="topbar">
+          <a class="wordmark" href="{{ base_href }}"><span class="wordmark-mark">{ }</span> codeatlas</a>
+          <div class="topbar-actions"><span class="topbar-note">Understand the code before you change it.</span><button class="theme-toggle" id="theme-toggle" type="button" aria-pressed="false"><span aria-hidden="true">◐</span> Dark mode</button></div>
+        </header>
+
+        <section class="hero" aria-labelledby="page-title">
+          <p class="kicker">Repository intelligence</p>
+          <h1 id="page-title">Make a codebase<br><em>legible.</em></h1>
+          <p class="hero-copy">Paste a public GitHub URL. Get the shape of the project, the files that matter, and an AI you can ask as you read.</p>
+          <form class="repo-form" id="repo-form">
+            <label class="sr-only" for="repo-url">GitHub repository URL</label>
+            <input id="repo-url" placeholder="owner / repository" autocomplete="url" required><button type="submit" class="primary-button"><span class="button-label">Read repository</span><span class="button-loader" hidden>Reading...</span><span aria-hidden="true">↗</span></button>
+          </form>
+          <p class="form-hint">Public GitHub repositories only. No account or setup required.</p>
+          <p class="form-error" id="form-error" role="alert" hidden></p>
+        </section>
+
+        <section class="workspace" id="workspace" hidden>
+          <div class="workspace-head"><div><p class="kicker">Repository overview</p><h2 id="repo-name">Repository</h2><a id="repo-link" target="_blank" rel="noreferrer"></a></div><div class="workspace-actions"><button class="outline-button" id="download-overview" type="button">Download overview</button><span class="repo-status" id="repo-status">indexed</span></div></div>
+          <nav class="workspace-tabs" aria-label="Repository sections" role="tablist"><button class="workspace-tab is-active" id="architecture-tab-button" type="button" role="tab" aria-selected="true" aria-controls="architecture-tab" data-tab="architecture">Architecture</button><button class="workspace-tab" id="overview-tab-button" type="button" role="tab" aria-selected="false" aria-controls="overview-tab" data-tab="overview">Overview</button><button class="workspace-tab" id="chat-tab-button" type="button" role="tab" aria-selected="false" aria-controls="chat-tab" data-tab="chat">AI Chat</button></nav>
+           <div class="tab-panel" id="overview-tab" role="tabpanel" aria-labelledby="overview-tab-button" hidden>
+             <div class="workspace-grid overview-lab">
+             <section class="summary-panel"><div class="panel-label">What this repo is</div><p class="summary" id="repo-summary">Analyzing the repository...</p><div class="facts" id="repo-facts"></div><div class="panel-label components-label">Likely entry points</div><div class="entry-points" id="entry-points"></div></section>
+           </div>
+          <section class="details-panel"><div class="detail-block"><div class="panel-label">Language breakdown</div><div class="language-list" id="language-list"></div></div><div class="detail-block"><div class="panel-label">Branches</div><div class="branch-list" id="branch-list"></div></div></section>
+          </div>
+           <section class="architecture-panel tab-panel" id="architecture-tab" role="tabpanel" aria-labelledby="architecture-tab-button" hidden><div class="architecture-heading"><div><p class="kicker">System map</p><h3>Architecture, without the guesswork.</h3><p>Generated from the repository metadata and file tree. Treat uncertain details as recommendations to verify.</p></div><button class="outline-button" id="download-architecture" type="button">Download architecture</button></div><div class="architecture-facts" id="architecture-facts"></div><div class="architecture-layout"><aside class="architecture-sidebar"><div class="panel-label">Likely entry points</div><div class="architecture-entries" id="architecture-entries"></div><p class="architecture-note">Start with these files, then follow their imports and configuration references.</p></aside><article class="architecture-document" id="architecture-summary">Analyzing the repository structure...</article></div></section>
+        </section>
+
+        <section class="ask-panel tab-panel" id="chat-tab" role="tabpanel" aria-labelledby="chat-tab-button" hidden>
+          <div class="ask-heading"><p class="kicker">File context</p><h2 id="ask-title">Ask about <code id="selected-file">selected files</code></h2><p class="selection-note" id="selection-note">Select up to 5 files in the repository tree.</p></div>
+           <div class="chat-layout"><aside class="chat-sidebar"><section class="files-panel"><div class="files-toolbar"><div><div class="panel-label">Repository tree</div><p id="file-count">0 files</p></div><input id="file-search" placeholder="Filter files..." aria-label="Filter files"></div><p class="tree-help">Choose files here to add them to your next question.</p><div class="file-list tree-list" id="file-list"></div><div class="file-empty" id="file-empty" hidden>No files match that filter.</div></section><section class="context-panel"><div class="context-panel-head"><div class="panel-label">Files in context</div><span id="context-count">0 / 5</span></div><div class="context-files" id="context-files"><p class="context-empty">No files selected yet.</p></div><button class="outline-button context-add" id="context-add" type="button">Focus file filter</button></section></aside><div class="chat-column"><div class="conversation" id="conversation"><p class="conversation-empty">Select a file, then ask what it does, where it is used, or what to watch out for.</p></div><div class="history-actions"><span id="history-count">No questions yet</span><button class="outline-button" id="download-chat" type="button">Download chat history</button></div><form class="question-form" id="question-form"><label class="sr-only" for="question">Ask a question about this file</label><input id="question" placeholder="What does this file do?" required><button class="primary-button" type="submit"><span>Ask AI</span><span aria-hidden="true">→</span></button></form></div></div>
+        </section>
+        <footer class="footer">codeatlas <span>·</span> a calm way into unfamiliar code <span>·</span> Sample project developed for <a href="https://www.cs.ubc.ca/~kevinlb/teaching/ai100/" target="_blank" rel="noreferrer">UBC’s AI 100: Introduction to Artificial Intelligence course</a></footer>
+      </main>
+    </div>
+    <div id="app-error" class="app-error" role="alert" aria-live="assertive" hidden></div>
+    <script id="gizmoapp-config" type="application/json">{{ client_config | tojson }}</script>
+    <script src="{{ shared_asset_base }}boot.js"></script>
+    <script type="module" src="{{ asset_base }}main.js"></script>
+  </body>
+</html>
