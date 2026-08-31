@@ -202,12 +202,18 @@ function bootstrap() {
       element.textContent = String(answer);
     }
   }
+  function renderAnswerAndFollow(element, answer) {
+    const conversation = element.closest(".conversation");
+    const wasAtBottom = conversation && conversation.scrollHeight - conversation.scrollTop - conversation.clientHeight < 32;
+    renderAnswer(element, answer);
+    if (wasAtBottom) conversation.scrollTop = conversation.scrollHeight;
+  }
   function scheduleAnswerRender(element, answer) {
     element._pendingAnswer = answer;
     if (element._renderTimer) return;
     element._renderTimer = setTimeout(() => {
       element._renderTimer = 0;
-      renderAnswer(element, element._pendingAnswer);
+      renderAnswerAndFollow(element, element._pendingAnswer);
     }, 80);
   }
   async function askQuestion(event) {
@@ -262,12 +268,13 @@ function bootstrap() {
            answer = (answer + token).slice(0, 32000);
            scheduleAnswerRender(answerElement, answer);
        }
-       if (type === "done") {
-         const completed = parsed;
-         if (typeof completed !== "string") throw new Error("The AI returned an invalid answer.");
-         finished = true;
-         answer = completed.slice(0, 32000);
-         renderAnswer(answerElement, answer);
+        if (type === "done") {
+          const completed = parsed;
+          if (typeof completed !== "string") throw new Error("The AI returned an invalid answer.");
+          if (!completed.trim() && !answer.trim()) throw new Error("The AI returned an empty answer.");
+          finished = true;
+          if (completed.trim()) answer = completed.slice(0, 32000);
+          renderAnswerAndFollow(answerElement, answer);
        }
          if (type === "error") throw new Error(typeof parsed === "string" ? parsed : "The AI stream failed. Please try again.");
       };
